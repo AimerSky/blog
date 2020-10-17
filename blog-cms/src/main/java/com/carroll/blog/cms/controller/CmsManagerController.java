@@ -7,7 +7,12 @@ import com.carroll.blog.cms.service.CmsRoleService;
 import com.carroll.blog.common.api.CommonPage;
 import com.carroll.blog.common.api.CommonResult;
 import com.carroll.blog.mbg.model.CmsManager;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -55,10 +60,13 @@ public class CmsManagerController {
     @ApiOperation("用户列表-分页")
     @RequestMapping(value = "/list", method = RequestMethod.POST)
     @ResponseBody
-    public CommonResult<CommonPage<CmsManager>> list(@RequestParam(value = "username", required = false) String username,
-                                                     @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
-                                                     @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum) {
-        List<CmsManager> cmsManagers = cmsManagerService.list(username, pageSize, pageNum);
+    @ApiImplicitParams({@ApiImplicitParam(name = "username", value = "用户姓名", dataType = "String", required = false),
+            @ApiImplicitParam(name = "pageSize", value = "显示条数", dataType = "int", required = true),
+            @ApiImplicitParam(name = "pageNum", value = "页码", dataType = "int", required = true)})
+    public CommonResult<CommonPage<CmsManager>> list(@RequestBody String params) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readValue(params,JsonNode.class);
+        List<CmsManager> cmsManagers = cmsManagerService.list(node.get("username").toString(), node.get("pageSize").asInt(), node.get("pageNum").asInt());
         return CommonResult.success(CommonPage.restPage(cmsManagers));
 
     }
