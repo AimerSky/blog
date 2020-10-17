@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.carroll.blog</groupId>
+	<artifactId>blog-mbg</artifactId>
+	<version>1.0.0</version>
+	<packaging>jar</packaging>
+	<name>blog-mbg</name>
+	<description>blog-mbg通用持久层</description>
+
+	<parent>
+		<groupId>com.carroll.blog</groupId>
+		<artifactId>blog</artifactId>
+		<version>1.0.0</version>
+	</parent>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.carroll.blog</groupId>
+			<artifactId>blog-common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mybatis.generator</groupId>
+			<artifactId>mybatis-generator-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
+	</dependencies>
+	
+</project>

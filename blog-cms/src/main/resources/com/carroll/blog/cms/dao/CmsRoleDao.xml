@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.carroll.blog.cms.dao.CmsRoleDao">
+    <select id="getManinMenuList" resultType="com.carroll.blog.mbg.model.CmsMenu">
+        SELECT
+            cm.menu_id menuId,
+            cm.parent_id parentId,
+            cm.slug slug,
+            cm.level level,
+            cm.name name,
+            cm.icon icon,
+			cm.url url
+        FROM
+            cms_manager_role cmr
+            LEFT JOIN cms_role cr ON cmr.role_id = cr.role_id
+            LEFT JOIN cms_role_menu crm ON crm.role_id = cr.role_id
+            LEFT JOIN cms_menu cm ON cm.menu_id = crm.menu_id
+        WHERE
+            cmr.manager_id = #{managerId}
+            AND cm.menu_id IS NOT NULL
+            AND cm.hidden = false
+        GROUP BY
+            cm.menu_id
+        ORDER BY
+            cm.sort
+    </select>
+
+    <select id="getRoleNames" resultType="java.lang.String">
+        SELECT
+            cr.name name
+        FROM
+            cms_manager_role cmr
+            LEFT JOIN cms_role cr ON cmr.role_id = cr.role_id
+        WHERE
+            cmr.manager_id = #{managerId}
+            AND cr.role_id IS NOT NULL
+        GROUP BY
+            cr.role_id
+    </select>
+</mapper>
