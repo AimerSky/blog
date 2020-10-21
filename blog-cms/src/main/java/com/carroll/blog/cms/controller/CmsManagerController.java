@@ -100,7 +100,7 @@ public class CmsManagerController {
         CmsManager cmsManager = cmsManagerService.getManagerByUsername(username);
         Map<String, Object> data = new HashMap<>();
         data.put("nikename", cmsManager.getNickname());
-        data.put("roleName", cmsRoleService.roleName(cmsManager.getManagerId()));
+        data.put("roleName", cmsRoleService.roleByIdName(cmsManager.getManagerId()));
         data.put("icon", cmsManager.getIcon());
         data.put("menus", cmsRoleService.getManinMenuList(cmsManager.getManagerId()));
         return CommonResult.success(data);
@@ -119,4 +119,6 @@ public class CmsManagerController {
         data.put("menus", cmsRoleService.getManinMenuList(cmsManager.getManagerId()));
         return CommonResult.success(data);
     }
+
+
 }

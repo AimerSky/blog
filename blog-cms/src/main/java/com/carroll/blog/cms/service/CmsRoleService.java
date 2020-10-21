@@ -60,7 +60,7 @@ public class CmsRoleService {
      * @param managerId
      * @return
      */
-    public String roleName(Integer managerId) {
+    public String roleByIdName(Integer managerId) {
         List<String> roleNames = cmsRoleDao.getRoleNames(managerId);
         String name = "";
         for (String roleName : roleNames) {
@@ -80,5 +80,35 @@ public class CmsRoleService {
         }
         return cmsRoleMapper.selectByExample(example);
     }
+
+    /**
+     * 根据id删除
+     */
+    public void deleteById(int roleId) {
+        cmsRoleMapper.deleteByPrimaryKey(roleId);
+    }
+
+
+    /**
+     * 创建
+     */
+    public int create(CmsRole cmsRole) {
+        return cmsRoleMapper.insertSelective(cmsRole);
+    }
+
+    /**
+     * 更新
+     */
+    public int update(CmsRole cmsRole) {
+        return cmsRoleMapper.updateByPrimaryKey(cmsRole);
+    }
+
+    /**
+     * 根据id查询
+     */
+    public CmsRole get(int roleId) {
+        return cmsRoleMapper.selectByPrimaryKey(roleId);
+    }
+
 
 }

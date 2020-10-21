@@ -37,8 +37,54 @@ public class CmsRoleController {
             @ApiImplicitParam(name = "pageNum", value = "页码", dataType = "int", required = true)})
     public CommonResult<CommonPage<CmsRole>> list(@RequestBody String params) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode node = mapper.readValue(params,JsonNode.class);
+        JsonNode node = mapper.readValue(params, JsonNode.class);
         List<CmsRole> roleList = roleService.list(node.get("keyword").asText(), node.get("pageSize").asInt(), node.get("pageNum").asInt());
         return CommonResult.success(CommonPage.restPage(roleList));
+    }
+
+    @ApiOperation("根据id删除角色")
+    @RequestMapping(value = "/deletebyid", method = RequestMethod.POST)
+    @ResponseBody
+    @ApiImplicitParams({@ApiImplicitParam(name = "roleId", value = "ID", dataType = "int", required = true)})
+    public CommonResult deleteById(@RequestBody String params) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readValue(params, JsonNode.class);
+        roleService.deleteById(node.get("roleId").asInt());
+        return CommonResult.success();
+    }
+
+    @ApiOperation("创建")
+    @RequestMapping(value = "/create", method = RequestMethod.POST)
+    @ResponseBody
+    public CommonResult create(@RequestBody CmsRole cmsRole) {
+        int count = roleService.create(cmsRole);
+        if (count > 0) {
+            return CommonResult.success(count);
+        } else {
+            return CommonResult.failed();
+        }
+    }
+
+    @ApiOperation("根据id查询")
+    @RequestMapping(value = "/get", method = RequestMethod.POST)
+    @ResponseBody
+    @ApiImplicitParams({@ApiImplicitParam(name = "roleId", value = "ID", dataType = "int", required = true)})
+    public CommonResult get(@RequestBody String params) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readValue(params, JsonNode.class);
+        CmsRole cmsRole = roleService.get(node.get("roleId").asInt());
+        return CommonResult.success(cmsRole);
+    }
+
+    @ApiOperation("更新")
+    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    @ResponseBody
+    public CommonResult update(@RequestBody CmsRole cmsRole) {
+        int count = roleService.update(cmsRole);
+        if (count > 0) {
+            return CommonResult.success(count);
+        } else {
+            return CommonResult.failed();
+        }
     }
 }
