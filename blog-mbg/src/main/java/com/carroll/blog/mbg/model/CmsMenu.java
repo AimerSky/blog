@@ -28,7 +28,7 @@ public class CmsMenu implements Serializable {
     @ApiModelProperty(value = "菜单排序")
     private Integer sort;
 
-    @ApiModelProperty(value = "前端隐藏")
+    @ApiModelProperty(value = "前端隐藏 true 隐藏")
     private Boolean hidden;
 
     @ApiModelProperty(value = "创建时间")

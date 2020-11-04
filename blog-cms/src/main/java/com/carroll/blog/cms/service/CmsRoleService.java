@@ -2,16 +2,17 @@ package com.carroll.blog.cms.service;
 
 import cn.hutool.core.util.ObjectUtil;
 import com.carroll.blog.cms.dao.CmsRoleDao;
+import com.carroll.blog.cms.dto.CmsRoleStateEnum;
+import com.carroll.blog.mbg.mapper.CmsManagerRoleMapper;
 import com.carroll.blog.mbg.mapper.CmsRoleMapper;
-import com.carroll.blog.mbg.model.CmsMenu;
-import com.carroll.blog.mbg.model.CmsRole;
-import com.carroll.blog.mbg.model.CmsRoleExample;
+import com.carroll.blog.mbg.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.pagehelper.PageHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -27,6 +28,8 @@ public class CmsRoleService {
     private CmsRoleDao cmsRoleDao;
     @Autowired
     private CmsRoleMapper cmsRoleMapper;
+    @Autowired
+    private CmsManagerRoleMapper cmsManagerRoleMapper;
 
 
     /**
@@ -75,6 +78,7 @@ public class CmsRoleService {
     public List<CmsRole> list(String keyword, Integer pageSize, Integer pageNum) {
         PageHelper.startPage(pageNum, pageSize);
         CmsRoleExample example = new CmsRoleExample();
+        example.createCriteria().andStateNotEqualTo(CmsRoleStateEnum.Delete.getValue());
         if (!StringUtils.isEmpty(keyword)) {
             example.createCriteria().andNameLike("%" + keyword + "%");
         }
@@ -86,6 +90,24 @@ public class CmsRoleService {
      */
     public void deleteById(int roleId) {
         cmsRoleMapper.deleteByPrimaryKey(roleId);
+    }
+
+    /**
+     * 根据id删除(逻辑删除)
+     */
+    @Transactional
+    public void deleteLogicById(int roleId) {
+        CmsRole cmsRole = new CmsRole();
+        cmsRole.setRoleId(roleId);
+        cmsRole.setState(CmsRoleStateEnum.Delete.getValue());
+        cmsRole.setManagerCount(0);
+
+
+        //删除该角色把下面的角色账号关联关系删除
+        CmsManagerRoleExample cmre = new CmsManagerRoleExample();
+        cmre.createCriteria().andRoleIdEqualTo(roleId);
+        cmsManagerRoleMapper.deleteByExample(cmre);
+        cmsRoleMapper.updateByPrimaryKeySelective(cmsRole);
     }
 
 

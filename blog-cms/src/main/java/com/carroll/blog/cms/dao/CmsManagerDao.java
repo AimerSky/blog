@@ -11,7 +11,7 @@ import java.util.List;
  */
 
 @Component
-public interface CmsManagerRoleDao {
+public interface CmsManagerDao {
     /**
      * 获取资源相关用户ID列表
      */
@@ -22,4 +22,9 @@ public interface CmsManagerRoleDao {
      */
     List<CmsResource> getCmsResourceList(@Param("managerId") Integer mcManagerId);
 
+
+    /**
+     * 获取所有用户账号
+     */
+    List<String> getAllUserName();
 }

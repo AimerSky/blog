@@ -49,7 +49,7 @@ public class CmsRoleController {
     public CommonResult deleteById(@RequestBody String params) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode node = mapper.readValue(params, JsonNode.class);
-        roleService.deleteById(node.get("roleId").asInt());
+        roleService.deleteLogicById(node.get("roleId").asInt());
         return CommonResult.success();
     }
 

@@ -1,7 +1,7 @@
 package com.carroll.blog.cms.service;
 
 import cn.hutool.core.collection.CollUtil;
-import com.carroll.blog.cms.dao.CmsManagerRoleDao;
+import com.carroll.blog.cms.dao.CmsManagerDao;
 import com.carroll.blog.mbg.mapper.CmsManagerRoleMapper;
 import com.carroll.blog.mbg.model.CmsManager;
 import com.carroll.blog.mbg.model.CmsManagerRole;
@@ -28,7 +28,7 @@ public class CmsManagerCacheService {
     @Autowired
     private CmsManagerRoleMapper mcManagerRoleMapper;
     @Autowired
-    private CmsManagerRoleDao cmsManagerRoleDao;
+    private CmsManagerDao cmsManagerRoleDao;
 
     @Value("${redis.database}")
     private String REDIS_DATABASE;
@@ -38,6 +38,8 @@ public class CmsManagerCacheService {
     private String REDIS_KEY_ADMIN;
     @Value("${redis.key.mcresourceList}")
     private String REDIS_KEY_RESOURCE_LIST;
+
+    private String allUsername = "ALLUSERNAME";
 
     /**
      * 删除后台用户缓存
@@ -112,6 +114,22 @@ public class CmsManagerCacheService {
     public void setCmsManager(CmsManager mcManager) {
         String key = REDIS_DATABASE + ":" + REDIS_KEY_ADMIN + ":" + mcManager.getUsername();
         redisService.set(key, mcManager, REDIS_EXPIRE);
+    }
+
+    /**
+     * 设置缓存后台所有用户账号
+     */
+    public void setUsername(List<String> usernameList) {
+        String key = REDIS_DATABASE + ":" + REDIS_KEY_ADMIN + ":" + allUsername;
+        redisService.set(key, usernameList, REDIS_EXPIRE);
+    }
+
+    /**
+     * 获取缓存后台所有用户账号
+     */
+    public List<String> getUsername() {
+        String key = REDIS_DATABASE + ":" + REDIS_KEY_ADMIN + ":" + allUsername;
+        return (List<String>) redisService.get(key);
     }
 
     /**

@@ -60,15 +60,14 @@ public class CmsManagerController {
     @ApiOperation("用户列表-分页")
     @RequestMapping(value = "/list", method = RequestMethod.POST)
     @ResponseBody
-    @ApiImplicitParams({@ApiImplicitParam(name = "username", value = "用户姓名", dataType = "String", required = false),
+    @ApiImplicitParams({@ApiImplicitParam(name = "keyword", value = "关键词", dataType = "String", required = false),
             @ApiImplicitParam(name = "pageSize", value = "显示条数", dataType = "int", required = true),
             @ApiImplicitParam(name = "pageNum", value = "页码", dataType = "int", required = true)})
     public CommonResult<CommonPage<CmsManager>> list(@RequestBody String params) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode node = mapper.readValue(params,JsonNode.class);
-        List<CmsManager> cmsManagers = cmsManagerService.list(node.get("username").toString(), node.get("pageSize").asInt(), node.get("pageNum").asInt());
+        JsonNode node = mapper.readValue(params, JsonNode.class);
+        List<CmsManager> cmsManagers = cmsManagerService.list(node.get("keyword").asText(), node.get("pageSize").asInt(), node.get("pageNum").asInt());
         return CommonResult.success(CommonPage.restPage(cmsManagers));
-
     }
 
     @ApiOperation("修改指定用户密码")
@@ -118,6 +117,69 @@ public class CmsManagerController {
         Map<String, Object> data = new HashMap<>();
         data.put("menus", cmsRoleService.getManinMenuList(cmsManager.getManagerId()));
         return CommonResult.success(data);
+    }
+
+
+    @ApiOperation(value = "根据id获取管理员信息")
+    @RequestMapping(value = "/get", method = RequestMethod.POST)
+    @ResponseBody
+    @ApiImplicitParams({@ApiImplicitParam(name = "managerId", dataType = "int", required = false)})
+    public CommonResult get(@RequestBody String params) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readValue(params, JsonNode.class);
+        CmsManagerParam cmsManagerParam = cmsManagerService.get(node.get("managerId").asInt());
+        return CommonResult.success(cmsManagerParam);
+    }
+
+    @ApiOperation("创建")
+    @RequestMapping(value = "/create", method = RequestMethod.POST)
+    @ResponseBody
+    public CommonResult create(@RequestBody CmsManagerParam cmsManagerParam) throws JsonProcessingException {
+        //判断账号是否重复
+        boolean status = cmsManagerService.usernameIsEmpty(cmsManagerParam.getUsername());
+        if(status){
+            return CommonResult.failed("账号重复！");
+        }
+        int count = cmsManagerService.create(cmsManagerParam);
+        if (count > 0) {
+            return CommonResult.success();
+        } else {
+            return CommonResult.failed();
+        }
+    }
+
+    @ApiOperation("更新")
+    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    @ResponseBody
+    public CommonResult update(@RequestBody CmsManagerParam cmsManagerParam) {
+        int count = 0;
+        if (count > 0) {
+            return CommonResult.success(count);
+        } else {
+            return CommonResult.failed();
+        }
+    }
+
+    @ApiOperation("根据id删除")
+    @RequestMapping(value = "/deletebyid", method = RequestMethod.POST)
+    @ResponseBody
+    @ApiImplicitParams({@ApiImplicitParam(name = "managerId", dataType = "int", required = true)})
+    public CommonResult deleteById(@RequestBody String params) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readValue(params, JsonNode.class);
+        //roleService.deleteLogicById(node.get("roleId").asInt());
+        return CommonResult.success();
+    }
+
+    @ApiOperation("根据id删除")
+    @RequestMapping(value = "/getusername", method = RequestMethod.POST)
+    @ResponseBody
+    @ApiImplicitParams({@ApiImplicitParam(name = "username", value = "账号", dataType = "int", required = true)})
+    public CommonResult getUsername(@RequestBody String params) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readValue(params, JsonNode.class);
+        boolean status = cmsManagerService.usernameIsEmpty(node.get("username").asText());
+        return CommonResult.success(status);
     }
 
 

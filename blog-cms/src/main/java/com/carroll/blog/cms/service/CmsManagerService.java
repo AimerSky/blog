@@ -1,15 +1,20 @@
 package com.carroll.blog.cms.service;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.carroll.blog.cms.bo.CmsManagerDetails;
-import com.carroll.blog.cms.dao.CmsManagerRoleDao;
+import com.carroll.blog.cms.dao.CmsManagerDao;
+import com.carroll.blog.cms.dto.CmsManagerParam;
 import com.carroll.blog.cms.dto.CmsManagerStateEnum;
 import com.carroll.blog.cms.dto.UpdateCmsManagerPasswordParam;
 import com.carroll.blog.mbg.mapper.CmsManagerLoginLogMapper;
 import com.carroll.blog.mbg.mapper.CmsManagerMapper;
 import com.carroll.blog.mbg.model.*;
 import com.carroll.blog.security.util.JwtTokenUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.PageHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,9 +33,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 管理员管理Service实现类
@@ -45,27 +48,24 @@ public class CmsManagerService {
     @Autowired
     private CmsManagerCacheService cmsManagerCacheService;
     @Autowired
-    private CmsResourceService cmsResourceService;
-    @Autowired
-    private CmsManagerRoleDao cmsManagerRoleDao;
+    private CmsManagerDao cmsManagerDao;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
     private CmsManagerLoginLogMapper cmsManagerLoginLogMapper;
-    @Autowired
-    private CmsRoleService cmsRoleService;
 
     /**
      * 查新列表
      */
-    public List<CmsManager> list(String username, Integer pageSize, Integer pageNum) {
+    public List<CmsManager> list(String keyword, Integer pageSize, Integer pageNum) {
         PageHelper.startPage(pageNum, pageSize);
         CmsManagerExample example = new CmsManagerExample();
         CmsManagerExample.Criteria criteria = example.createCriteria();
-        if (!StringUtils.isEmpty(username)) {
-            criteria.andUsernameLike("%" + username + "%");
+        criteria.andStateNotEqualTo(CmsManagerStateEnum.Delete.getValue());
+        if (!StringUtils.isEmpty(keyword)) {
+            criteria.andUsernameLike("%" + keyword + "%");
         }
         example.setOrderByClause("manager_id desc");
 
@@ -107,7 +107,7 @@ public class CmsManagerService {
         if (CollUtil.isNotEmpty(resourceList)) {
             return resourceList;
         }
-        resourceList = cmsManagerRoleDao.getCmsResourceList(cmsManagerId);
+        resourceList = cmsManagerDao.getCmsResourceList(cmsManagerId);
         if (CollUtil.isNotEmpty(resourceList)) {
             cmsManagerCacheService.setCmsResourceList(cmsManagerId, resourceList);
         }
@@ -194,16 +194,48 @@ public class CmsManagerService {
         return 1;
     }
 
+    /**
+     * 根据id获取管理员信息
+     */
+    public CmsManagerParam get(int managerId) throws JsonProcessingException {
 
-/*    public Map<String, Object> info(Principal principal) {
-        String username = principal.getName();
-        CmsManager cmsManager = getManagerByUsername(username);
-        Map<String, Object> data = new HashMap<>();
-
-        List<CmsMenu> cmsMenuList = cmsRoleService.getMenuList(cmsManager.getManagerId());
-
+        CmsManager cmsManager = cmsManagerMapper.selectByPrimaryKey(managerId);
         ObjectMapper mapper = new ObjectMapper();
-        ArrayNode arrayNode = mapper.createArrayNode();
-        return data;
-    }*/
+        String manager = mapper.writeValueAsString(cmsManager);
+        //jackson json转bean忽略没有的字段
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        CmsManagerParam cmsManagerParam = mapper.readValue(manager, CmsManagerParam.class);
+        return cmsManagerParam;
+    }
+
+
+    /**
+     * 判断当前账号是否存在
+     */
+    public boolean usernameIsEmpty(String username) {
+        List<String> usernameList = cmsManagerCacheService.getUsername();
+        if (ObjectUtil.isNull(usernameList)) {
+            //是空查询数据库
+            usernameList = cmsManagerDao.getAllUserName();
+            cmsManagerCacheService.setUsername(usernameList);
+        }
+        boolean status = usernameList.stream().anyMatch(usernameStrean -> usernameStrean.equals(username));
+        return status;
+    }
+
+    /**
+     * 创建
+     */
+    public int create(CmsManagerParam cmsManagerParam) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        String manager = mapper.writeValueAsString(cmsManagerParam);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        CmsManager cmsManager = mapper.readValue(manager, CmsManager.class);
+        //初始密码123456
+        cmsManager.setPassword(passwordEncoder.encode("123456"));
+        cmsManager.setCreateDate(new Date());
+        return cmsManagerMapper.insert(cmsManager);
+    }
+
+
 }

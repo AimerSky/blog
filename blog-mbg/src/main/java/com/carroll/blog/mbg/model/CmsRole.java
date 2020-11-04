@@ -16,8 +16,8 @@ public class CmsRole implements Serializable {
     @ApiModelProperty(value = "后台用户数量")
     private Integer managerCount;
 
-    @ApiModelProperty(value = "启用状态：0->禁用；1->启用")
-    private Integer status;
+    @ApiModelProperty(value = "启用状态：1->正常 2->禁用 3->删除")
+    private Integer state;
 
     @ApiModelProperty(value = "描述")
     private String description;
@@ -59,12 +59,12 @@ public class CmsRole implements Serializable {
         this.managerCount = managerCount;
     }
 
-    public Integer getStatus() {
-        return status;
+    public Integer getState() {
+        return state;
     }
 
-    public void setStatus(Integer status) {
-        this.status = status;
+    public void setState(Integer state) {
+        this.state = state;
     }
 
     public String getDescription() {
@@ -93,7 +93,7 @@ public class CmsRole implements Serializable {
         sb.append(", name=").append(name);
         sb.append(", sort=").append(sort);
         sb.append(", managerCount=").append(managerCount);
-        sb.append(", status=").append(status);
+        sb.append(", state=").append(state);
         sb.append(", description=").append(description);
         sb.append(", createTime=").append(createTime);
         sb.append(", serialVersionUID=").append(serialVersionUID);
