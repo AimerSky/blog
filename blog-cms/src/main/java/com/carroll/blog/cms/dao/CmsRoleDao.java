@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by carroll on 2020/6/8.
@@ -15,5 +16,5 @@ public interface CmsRoleDao {
 
     List<String> getRoleNames(@Param("managerId") Integer managerId);
 
-
+    List<Map<String,String>> getNameIdList();
 }

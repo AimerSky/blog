@@ -1,5 +1,6 @@
 package com.carroll.blog.cms.dao;
 
+import com.carroll.blog.mbg.model.CmsManagerRole;
 import com.carroll.blog.mbg.model.CmsResource;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
@@ -22,9 +23,13 @@ public interface CmsManagerDao {
      */
     List<CmsResource> getCmsResourceList(@Param("managerId") Integer mcManagerId);
 
-
     /**
      * 获取所有用户账号
      */
     List<String> getAllUserName();
+
+    /**
+     * 批量添加关系
+     */
+    void addManagerRole(List<CmsManagerRole> cmsManagerRoleList);
 }

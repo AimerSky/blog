@@ -101,20 +101,19 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.carroll.blog.mbg.model.LearnTest">
-    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
-      SELECT LAST_INSERT_ID()
-    </selectKey>
-    insert into learn_test (name, phone, sex, 
-      address, create_date)
-    values (#{name,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{sex,jdbcType=BIT}, 
-      #{address,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP})
+    insert into learn_test (id, name, phone, 
+      sex, address, create_date
+      )
+    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, 
+      #{sex,jdbcType=BIT}, #{address,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}
+      )
   </insert>
   <insert id="insertSelective" parameterType="com.carroll.blog.mbg.model.LearnTest">
-    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
-      SELECT LAST_INSERT_ID()
-    </selectKey>
     insert into learn_test
     <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
       <if test="name != null">
         name,
       </if>
@@ -132,6 +131,9 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
       </if>

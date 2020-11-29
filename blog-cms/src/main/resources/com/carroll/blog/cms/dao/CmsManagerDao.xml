@@ -36,4 +36,18 @@
         FROM
             cms_manager
     </select>
+
+
+    <insert id="addManagerRole">
+        insert into cms_manager_role (manager_id, role_id
+        )
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.managerId,jdbcType=INTEGER},
+            #{item.roleId,jdbcType=INTEGER}
+            )
+        </foreach>
+    </insert>
+
 </mapper>

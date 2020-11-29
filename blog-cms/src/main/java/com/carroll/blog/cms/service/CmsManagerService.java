@@ -10,6 +10,7 @@ import com.carroll.blog.cms.dto.CmsManagerStateEnum;
 import com.carroll.blog.cms.dto.UpdateCmsManagerPasswordParam;
 import com.carroll.blog.mbg.mapper.CmsManagerLoginLogMapper;
 import com.carroll.blog.mbg.mapper.CmsManagerMapper;
+import com.carroll.blog.mbg.mapper.CmsManagerRoleMapper;
 import com.carroll.blog.mbg.model.*;
 import com.carroll.blog.security.util.JwtTokenUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -27,13 +28,16 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 管理员管理Service实现类
@@ -55,6 +59,8 @@ public class CmsManagerService {
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
     private CmsManagerLoginLogMapper cmsManagerLoginLogMapper;
+    @Autowired
+    private CmsManagerRoleMapper cmsManagerRoleMapper;
 
     /**
      * 查新列表
@@ -200,6 +206,7 @@ public class CmsManagerService {
     public CmsManagerParam get(int managerId) throws JsonProcessingException {
 
         CmsManager cmsManager = cmsManagerMapper.selectByPrimaryKey(managerId);
+        cmsManager.setPassword(null);
         ObjectMapper mapper = new ObjectMapper();
         String manager = mapper.writeValueAsString(cmsManager);
         //jackson json转bean忽略没有的字段
@@ -226,6 +233,7 @@ public class CmsManagerService {
     /**
      * 创建
      */
+    @Transactional
     public int create(CmsManagerParam cmsManagerParam) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         String manager = mapper.writeValueAsString(cmsManagerParam);
@@ -234,7 +242,75 @@ public class CmsManagerService {
         //初始密码123456
         cmsManager.setPassword(passwordEncoder.encode("123456"));
         cmsManager.setCreateDate(new Date());
-        return cmsManagerMapper.insert(cmsManager);
+        int count = cmsManagerMapper.insert(cmsManager);
+
+        addMmanagerRole(cmsManager.getManagerId(), cmsManagerParam.getRoleIdList());
+        return count;
+    }
+
+    /**
+     * 修改
+     */
+    @Transactional
+    public int update(CmsManagerParam cmsManagerParam) throws JsonProcessingException {
+        cmsManagerParam.setPassword(null);
+        cmsManagerParam.setUsername(null);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String manager = mapper.writeValueAsString(cmsManagerParam);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        CmsManager cmsManager = mapper.readValue(manager, CmsManager.class);
+        cmsManager.setUpdateDate(new Date());
+        int count = cmsManagerMapper.updateByPrimaryKeySelective(cmsManager);
+
+        addMmanagerRole(cmsManager.getManagerId(), cmsManagerParam.getRoleIdList());
+        return count;
+    }
+
+    /**
+     * 创建or修改 添加角色
+     */
+    private void addMmanagerRole(int managerId, List<Integer> roleIdList) {
+        CmsManagerRoleExample cmsManagerRoleExample = new CmsManagerRoleExample();
+        cmsManagerRoleExample.createCriteria().andManagerIdEqualTo(managerId);
+        cmsManagerRoleMapper.deleteByExample(cmsManagerRoleExample);
+
+        List<CmsManagerRole> cmsManagerRoleList = new ArrayList<>();
+        //add
+        for (Integer roleId : roleIdList) {
+            CmsManagerRole cmsManagerRole = new CmsManagerRole();
+            cmsManagerRole.setManagerId(managerId);
+            cmsManagerRole.setRoleId(roleId);
+            cmsManagerRoleList.add(cmsManagerRole);
+        }
+        if (ObjectUtil.isEmpty(cmsManagerRoleList)) {
+            return;
+        }
+        cmsManagerDao.addManagerRole(cmsManagerRoleList);
+    }
+
+    /**
+     * 获取当前角色的角色
+     */
+
+    public List<Integer> getManagerRoleIdList(int managerId) {
+        CmsManagerRoleExample cmsManagerRoleExample = new CmsManagerRoleExample();
+        cmsManagerRoleExample.createCriteria().andManagerIdEqualTo(managerId);
+        List<CmsManagerRole> cmsManagerRoleList = cmsManagerRoleMapper.selectByExample(cmsManagerRoleExample);
+        //将对象集合list中抽取属性集合转化为list
+        List<Integer> roleIdList = cmsManagerRoleList.stream().map(CmsManagerRole::getRoleId).collect(Collectors.toList());
+        return roleIdList;
+    }
+
+    /**
+     * 根据id删除(逻辑删除)
+     */
+    @Transactional
+    public void deleteLogicById(int managerId) {
+        CmsManager cmsManager = new CmsManager();
+        cmsManager.setManagerId(managerId);
+        cmsManager.setState(CmsManagerStateEnum.Delete.getValue());
+        cmsManagerMapper.updateByPrimaryKeySelective(cmsManager);
     }
 
 

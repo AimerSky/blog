@@ -37,4 +37,16 @@
         GROUP BY
             cr.role_id
     </select>
+
+    <select id="getNameIdList" resultType="java.util.HashMap">
+        SELECT
+            role_id id,
+            name
+        FROM
+            cms_role
+        WHERE
+            state = 1
+        ORDER BY
+            role_id desc
+    </select>
 </mapper>

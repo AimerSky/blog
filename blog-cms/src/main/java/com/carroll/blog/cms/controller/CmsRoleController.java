@@ -1,5 +1,7 @@
 package com.carroll.blog.cms.controller;
 
+import cn.hutool.core.util.ObjectUtil;
+import com.carroll.blog.cms.service.CmsManagerService;
 import com.carroll.blog.cms.service.CmsRoleService;
 import com.carroll.blog.common.api.CommonPage;
 import com.carroll.blog.common.api.CommonResult;
@@ -7,6 +9,7 @@ import com.carroll.blog.mbg.model.CmsRole;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -15,7 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 角色管理
@@ -27,6 +32,8 @@ import java.util.List;
 public class CmsRoleController {
     @Autowired
     private CmsRoleService roleService;
+    @Autowired
+    private CmsManagerService cmsManagerService;
 
 
     @ApiOperation("根据角色名称分页获取角色列表")
@@ -43,7 +50,7 @@ public class CmsRoleController {
     }
 
     @ApiOperation("根据id删除角色")
-    @RequestMapping(value = "/deletebyid", method = RequestMethod.POST)
+    @RequestMapping(value = "/deleteById", method = RequestMethod.POST)
     @ResponseBody
     @ApiImplicitParams({@ApiImplicitParam(name = "roleId", value = "ID", dataType = "int", required = true)})
     public CommonResult deleteById(@RequestBody String params) throws JsonProcessingException {
@@ -87,4 +94,48 @@ public class CmsRoleController {
             return CommonResult.failed();
         }
     }
+
+    @ApiOperation("获取名称和Id Map")
+    @RequestMapping(value = "/getNameidList", method = RequestMethod.POST)
+    @ResponseBody
+    public CommonResult getNameidList(@RequestBody String params) throws JsonProcessingException {
+        Map<String, Object> data = new HashMap<>();
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readValue(params, JsonNode.class);
+
+        List<Map<String, String>> nameIdList = roleService.getNameIdList();
+        data.put("nameIdList", nameIdList);
+
+        if (ObjectUtil.isNull(node.get("managerId"))) {
+            return CommonResult.success(data);
+        }
+        List<Integer> roleIdList = cmsManagerService.getManagerRoleIdList(node.get("managerId").asInt());
+        data.put("roleIdList", roleIdList);
+        return CommonResult.success(data);
+    }
+
+
+    @ApiOperation("查询角色菜单")
+    @RequestMapping(value = "/getRoleMenu", method = RequestMethod.POST)
+    @ResponseBody
+    public CommonResult getRoleMenu(@RequestBody String params) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readValue(params, JsonNode.class);
+        List<Map<String, Object>> treeMenu = roleService.getRoleMenu(node.get("roleId").asInt());
+        return CommonResult.success(treeMenu);
+    }
+
+
+    @ApiOperation("保存角色菜单")
+    @RequestMapping(value = "/saveRoleMenu", method = RequestMethod.POST)
+    @ResponseBody
+    public CommonResult saveRoleMenu(@RequestBody String params) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readValue(params, JsonNode.class);
+        ArrayNode arrayNode = (ArrayNode)node.get("listMenuId");
+        roleService.saveRoleMenu(node.get("roleId").asInt(), arrayNode);
+        return CommonResult.success();
+    }
+
+
 }

@@ -137,7 +137,7 @@ public class CmsManagerController {
     public CommonResult create(@RequestBody CmsManagerParam cmsManagerParam) throws JsonProcessingException {
         //判断账号是否重复
         boolean status = cmsManagerService.usernameIsEmpty(cmsManagerParam.getUsername());
-        if(status){
+        if (status) {
             return CommonResult.failed("账号重复！");
         }
         int count = cmsManagerService.create(cmsManagerParam);
@@ -151,8 +151,8 @@ public class CmsManagerController {
     @ApiOperation("更新")
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     @ResponseBody
-    public CommonResult update(@RequestBody CmsManagerParam cmsManagerParam) {
-        int count = 0;
+    public CommonResult update(@RequestBody CmsManagerParam cmsManagerParam) throws JsonProcessingException {
+        int count = cmsManagerService.update(cmsManagerParam);
         if (count > 0) {
             return CommonResult.success(count);
         } else {
@@ -161,18 +161,18 @@ public class CmsManagerController {
     }
 
     @ApiOperation("根据id删除")
-    @RequestMapping(value = "/deletebyid", method = RequestMethod.POST)
+    @RequestMapping(value = "/deleteById", method = RequestMethod.POST)
     @ResponseBody
     @ApiImplicitParams({@ApiImplicitParam(name = "managerId", dataType = "int", required = true)})
     public CommonResult deleteById(@RequestBody String params) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode node = mapper.readValue(params, JsonNode.class);
-        //roleService.deleteLogicById(node.get("roleId").asInt());
+        cmsManagerService.deleteLogicById(node.get("managerId").asInt());
         return CommonResult.success();
     }
 
     @ApiOperation("根据id删除")
-    @RequestMapping(value = "/getusername", method = RequestMethod.POST)
+    @RequestMapping(value = "/getUsername", method = RequestMethod.POST)
     @ResponseBody
     @ApiImplicitParams({@ApiImplicitParam(name = "username", value = "账号", dataType = "int", required = true)})
     public CommonResult getUsername(@RequestBody String params) throws JsonProcessingException {

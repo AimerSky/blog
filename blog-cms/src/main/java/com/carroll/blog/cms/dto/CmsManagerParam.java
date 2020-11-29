@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 /**
  * 用户登录参数
@@ -44,4 +45,7 @@ public class CmsManagerParam {
 
     @ApiModelProperty(value = "备注")
     private String note;
+
+    @ApiModelProperty(value = "角色id")
+    private List<Integer> roleIdList;
 }
