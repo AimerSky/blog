@@ -21,6 +21,7 @@
         <module>blog-mbg</module>
         <module>blog-security</module>
         <module>blog-cms</module>
+        <module>blog-search</module>
     </modules>
 
     <properties>
@@ -33,6 +34,7 @@
         <blog-cms.version>1.0.0</blog-cms.version>
         <blog-common.version>1.0.0</blog-common.version>
         <blog-security.version>1.0.0</blog-security.version>
+        <blog-search.version>1.0.0</blog-search.version>
 
 
         <mybatis-plus.version>3.3.2</mybatis-plus.version>
@@ -107,6 +109,12 @@
                 <groupId>com.carroll.blog</groupId>
                 <artifactId>blog-security</artifactId>
                 <version>${blog-security.version}</version>
+            </dependency>
+            <!--安全验证模块-->
+            <dependency>
+                <groupId>com.carroll.blog</groupId>
+                <artifactId>blog-search</artifactId>
+                <version>${blog-search.version}</version>
             </dependency>
 
             <!--Mysql数据库驱动-->

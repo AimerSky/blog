@@ -1,11 +1,10 @@
-package com.carroll.blog.cms;
+package com.carroll.blog.search;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class BlogCmsApplicationTests {
-
+class BlogSearchApplicationTests {
 
 	@Test
 	void contextLoads() {
