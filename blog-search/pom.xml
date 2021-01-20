@@ -7,22 +7,39 @@
 	<version>1.0.0</version>
 	<packaging>jar</packaging>
 	<name>blog-search</name>
-	<description>blog-search elasticsearch查询</description>
+	<description>ES查询</description>
 
-	<properties>
+	<parent>
 		<groupId>com.carroll.blog</groupId>
 		<artifactId>blog</artifactId>
 		<version>1.0.0</version>
-	</properties>
+	</parent>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.carroll.blog</groupId>
+			<artifactId>blog-mbg</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.carroll.blog</groupId>
+			<artifactId>blog-common</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-autoconfigure</artifactId>
-			<version>2.3.4.RELEASE</version>
-			<scope>compile</scope>
+			<artifactId>spring-boot-starter-data-elasticsearch</artifactId>
 		</dependency>
+
 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>

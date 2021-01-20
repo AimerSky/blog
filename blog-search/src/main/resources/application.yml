@@ -1,0 +1,21 @@
+server:
+  port: 9982
+
+spring:
+  application:
+    name: blog-search
+  profiles:
+    active: dev #默认为开发环境
+  jackson:
+    date-format: yyyy-MM-dd #时间格式
+  main:
+    allow-bean-definition-overriding: true
+mybatis:
+  mapper-locations:
+    - classpath*:com/**/dao/*.xml
+    - classpath*:com/**/mapper/*.xml
+
+logging:
+  level:
+    root: info #日志配置DEBUG,INFO,WARN,ERROR
+    com.carroll.blog: debug

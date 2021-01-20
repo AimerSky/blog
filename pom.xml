@@ -48,6 +48,7 @@
         <pagehelper-starter.version>1.2.13</pagehelper-starter.version>
         <logstash-logback.version>4.8</logstash-logback.version>
         <jackson-databind.version>2.11.0</jackson-databind.version>
+        <guava.version>30.1-jre</guava.version>
 
     </properties>
 
@@ -110,7 +111,7 @@
                 <artifactId>blog-security</artifactId>
                 <version>${blog-security.version}</version>
             </dependency>
-            <!--安全验证模块-->
+            <!--ES查询-->
             <dependency>
                 <groupId>com.carroll.blog</groupId>
                 <artifactId>blog-search</artifactId>
@@ -181,6 +182,12 @@
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson-databind.version}</version>
+            </dependency>
+            <!-- guava工具类 -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
             </dependency>
 
         </dependencies>
